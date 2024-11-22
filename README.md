@@ -710,7 +710,7 @@ WordPress admin dashboard.<o:p></o:p></p>
 </ol>
 
 <p class=MsoNormal>git clone
-https://github.com/desoem/custom-products-api.git<o:p></o:p></p>
+https://github.com/yourusername/custom-products-api.git<o:p></o:p></p>
 
 <ol style='margin-top:0in' start=2 type=1>
  <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><b>Upload
@@ -845,36 +845,6 @@ https://github.com/desoem/custom-products-api.git<o:p></o:p></p>
 </ul>
 
 <p class=MsoNormal><o:p>&nbsp;</o:p></p>
-
-<p class=MsoNormal><b>Contributing<o:p></o:p></b></p>
-
-<ol style='margin-top:0in' start=1 type=1>
- <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'>Fork
-     the repository.<o:p></o:p></li>
- <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'>Create
-     a new branch for your feature or bug fix:<o:p></o:p></li>
-</ol>
-
-<p class=MsoNormal>git checkout -b feature-or-bugfix-name<o:p></o:p></p>
-
-<ol style='margin-top:0in' start=3 type=1>
- <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'>Commit
-     your changes:<o:p></o:p></li>
-</ol>
-
-<p class=MsoNormal>git commit -m &quot;Description of changes&quot;<o:p></o:p></p>
-
-<ol style='margin-top:0in' start=4 type=1>
- <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'>Push
-     to your branch:<o:p></o:p></li>
-</ol>
-
-<p class=MsoNormal>git push origin feature-or-bugfix-name<o:p></o:p></p>
-
-<ol style='margin-top:0in' start=5 type=1>
- <li class=MsoNormal style='mso-list:l2 level1 lfo11;tab-stops:list .5in'>Submit
-     a pull request.<o:p></o:p></li>
-</ol>
 
 <p class=MsoNormal><b>License<o:p></o:p></b></p>
 
