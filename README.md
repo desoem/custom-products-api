@@ -710,7 +710,7 @@ WordPress admin dashboard.<o:p></o:p></p>
 </ol>
 
 <p class=MsoNormal>git clone
-https://github.com/desoeme/custom-products-api.git<o:p></o:p></p>
+https://github.com/desoem/custom-products-api.git<o:p></o:p></p>
 
 <ol style='margin-top:0in' start=2 type=1>
  <li class=MsoNormal style='mso-list:l7 level1 lfo2;tab-stops:list .5in'><b>Upload
