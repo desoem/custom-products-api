@@ -1,30 +1,37 @@
 <?php
 /**
  * Plugin Name: Custom Products API
- * Description: A WordPress plugin to integrate with a remote WooCommerce API to manage products. Yorprofirm WP plugin.
- * Version: 1.0
+ * Description: Integrates with WooCommerce API to manage products on a remote WooCommerce site.
+ * Version: 1.1
  * Author: Ridwan Sumantri
  */
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
 
-// Autoload required files
-require_once plugin_dir_path(__FILE__) . 'includes/class-cpa-settings.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-cpa-products.php';
+// Define constants
+define( 'CUSTOM_PRODUCTS_API_DIR', plugin_dir_path( __FILE__ ) );
+define( 'CUSTOM_PRODUCTS_API_URL', plugin_dir_url( __FILE__ ) );
 
-// Initialize the plugin
-class CustomProductsAPI {
+// Include required files
+require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-settings.php';
+require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-list-products.php';
+require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-create-product.php';
+
+class Custom_Products_API {
     public function __construct() {
-        add_action('admin_menu', [$this, 'register_admin_menu']);
+        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
     }
 
-    public function register_admin_menu() {
+    public function add_admin_menu() {
         add_menu_page(
             'Custom Products API',
             'Custom Products API',
             'manage_options',
             'custom-products-api',
-            null,
+            array( 'Custom_Products_API_List_Products', 'render_page' ),
             'dashicons-products'
         );
 
@@ -33,8 +40,8 @@ class CustomProductsAPI {
             'List Products',
             'List Products',
             'manage_options',
-            'cpa-list-products',
-            ['CPA_Products', 'render_list_products']
+            'custom-products-api',
+            array( 'Custom_Products_API_List_Products', 'render_page' )
         );
 
         add_submenu_page(
@@ -42,8 +49,8 @@ class CustomProductsAPI {
             'Create Product',
             'Create Product',
             'manage_options',
-            'cpa-create-product',
-            ['CPA_Products', 'render_create_product']
+            'custom-products-api-create',
+            array( 'Custom_Products_API_Create_Product', 'render_page' )
         );
 
         add_submenu_page(
@@ -51,11 +58,15 @@ class CustomProductsAPI {
             'Configuration',
             'Configuration',
             'manage_options',
-            'cpa-settings',
-            ['CPA_Settings', 'render_settings_page']
+            'custom-products-api-config',
+            array( 'Custom_Products_API_Settings', 'render_page' )
         );
+    }
+
+    public function enqueue_assets() {
+        wp_enqueue_style( 'custom-products-api-styles', CUSTOM_PRODUCTS_API_URL . 'assets/styles.css' );
+        wp_enqueue_script( 'custom-products-api-scripts', CUSTOM_PRODUCTS_API_URL . 'assets/scripts.js', array( 'jquery' ), null, true );
     }
 }
 
-// Start the plugin
-new CustomProductsAPI();
+new Custom_Products_API();
