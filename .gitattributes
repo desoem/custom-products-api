@@ -1,2 +1,40 @@
-# Auto detect text files and perform LF normalization
+# Set default behavior to automatically normalize line endings.
 * text=auto
+
+# Mark PHP files as text files to ensure proper line endings.
+*.php text
+
+# Mark CSS files as text files to ensure proper line endings.
+*.css text
+
+# Mark JavaScript files as text files to ensure proper line endings.
+*.js text
+
+# Ensure that all Markdown and Readme files have consistent line endings.
+README.md text
+
+# Ensure that all HTML files (e.g., for documentation or templates) are treated as text.
+*.html text
+
+# Handle image files as binary to avoid line-ending normalization.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+
+# If you're using other binary assets, add them here as well:
+*.zip binary
+*.tar.gz binary
+*.tar.bz2 binary
+*.rar binary
+
+# Handle JSON files (configuration files) as text to ensure proper line endings.
+*.json text
+
+# Ensure that WordPress-related files (like wp-config.php) are treated as text.
+wp-config.php text
+
+# If you are using Composer, handle composer.json and composer.lock files as text
+composer.json text
+composer.lock text
