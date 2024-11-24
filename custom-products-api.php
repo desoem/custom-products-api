@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Products API
  * Description: Integrates with WooCommerce API to manage products on a remote WooCommerce site.
- * Version: 1.1
+ * Version: 1.2
  * Author: Ridwan Sumantri
  */
 
