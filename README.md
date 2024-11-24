@@ -17,7 +17,7 @@
 <ol>
   <li><strong>Download the Plugin</strong>
     <pre>
-git clone https://github.com/your-username/custom-products-api.git
+git clone https://github.com/desoem/custom-products-api.git
     </pre>
   </li>
   <li><strong>Install the Plugin</strong>
