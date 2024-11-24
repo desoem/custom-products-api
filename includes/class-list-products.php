@@ -69,14 +69,14 @@ add_action('wp_ajax_fetch_products', function () {
             $query_params['search'] = $search;
         }
 
-        $response = wp_remote_get("$endpoint/products?" . http_build_query($query_params), array(
-            'headers' => array(
-                'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
-            ),
-        ));
+        $response = wp_remote_get(add_query_arg($query_params, $endpoint), array(
+    'headers' => array(
+        'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
+    ),
+));
 
         if (is_wp_error($response)) {
-            echo '<p>Error: ' . $response->get_error_message() . '</p>';
+            echo '<p>Error: ' . esc_html($response->get_error_message()) . '</p>';
         } else {
             $products = json_decode(wp_remote_retrieve_body($response), true);
             $total_pages = wp_remote_retrieve_header($response, 'x-wp-totalpages');
@@ -98,7 +98,7 @@ add_action('wp_ajax_fetch_products', function () {
 
                 // Render pagination
                 if ($enable_pagination && $total_pages > 1) {
-                    echo '<div class="pagination">';
+                    echo '<div class="pagination" style="text-align: center; margin-top: 20px;">'; // Center align the pagination
                     if ($page > 1) {
                         echo '<a href="#" data-page="' . ($page - 1) . '" class="prev" style="margin-right: 10px;">&laquo; Previous</a>';
                     }
