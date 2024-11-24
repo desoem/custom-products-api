@@ -1,5 +1,6 @@
 <?php
 class Custom_Products_API_Plugin {
+    // Render the Create Product Page
     public static function render_create_product_page() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('create_product', 'create_product_nonce')) {
             $options = get_option('custom_products_api_settings', array());
@@ -11,15 +12,15 @@ class Custom_Products_API_Plugin {
                 'name' => sanitize_text_field($_POST['name']),
                 'description' => sanitize_textarea_field($_POST['description']),
                 'regular_price' => sanitize_text_field($_POST['price']),
-                'stock_quantity' => intval($_POST['stock_quantity'])
+                'stock_quantity' => intval($_POST['stock_quantity']),
             );
 
             $response = wp_remote_post("$endpoint/products", array(
                 'headers' => array(
                     'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
-                    'Content-Type' => 'application/json'
+                    'Content-Type' => 'application/json',
                 ),
-                'body' => json_encode($data)
+                'body' => json_encode($data),
             ));
 
             if (is_wp_error($response)) {
@@ -65,6 +66,7 @@ class Custom_Products_API_Plugin {
         echo '</div>';
     }
 
+    // Render the List Products Page
     public static function render_list_products_page() {
         ?>
         <div class="wrap">
@@ -84,14 +86,14 @@ class Custom_Products_API_Plugin {
                         data: {
                             action: 'fetch_products',
                             page: page,
-                            search: search
+                            search: search,
                         },
                         success: function (response) {
                             $('#product-list').html(response);
                         },
                         error: function () {
                             $('#product-list').html('<p>Error fetching products.</p>');
-                        }
+                        },
                     });
                 }
 
@@ -110,80 +112,110 @@ class Custom_Products_API_Plugin {
         </script>
         <?php
     }
-}
 
-add_action('wp_ajax_fetch_products', function () {
-    $options = get_option('custom_products_api_settings', array());
-    $endpoint = $options['api_endpoint'] ?? '';
-    $consumer_key = $options['consumer_key'] ?? '';
-    $consumer_secret = $options['consumer_secret'] ?? '';
-    $enable_pagination = $options['enable_pagination'] ?? false;
+    // AJAX handler for fetching products
+    public static function fetch_products() {
+        $options = get_option('custom_products_api_settings', array());
+        $endpoint = $options['api_endpoint'] ?? '';
+        $consumer_key = $options['consumer_key'] ?? '';
+        $consumer_secret = $options['consumer_secret'] ?? '';
+        $enable_pagination = $options['enable_pagination'] ?? false;
 
-    $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
-    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-    $per_page = 10;
-    $offset = ($page - 1) * $per_page;
+        $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+        $per_page = 10;
+        $offset = ($page - 1) * $per_page;
 
-    if ($endpoint && $consumer_key && $consumer_secret) {
-        if (substr($endpoint, -9) !== '/products') {
-            $endpoint = rtrim($endpoint, '/') . '/products';
-        }
+        if ($endpoint && $consumer_key && $consumer_secret) {
+            $query_params = [
+                'page' => $page,
+                'per_page' => $per_page,
+            ];
 
-        $query_params = [
-            'page' => $page,
-            'per_page' => $per_page,
-        ];
+            if (!empty($search)) {
+                $query_params['search'] = $search;
+            }
 
-        if (!empty($search)) {
-            $query_params['search'] = $search;
-        }
+            $response = wp_remote_get("$endpoint/products?" . http_build_query($query_params), array(
+                'headers' => array(
+                    'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
+                ),
+            ));
 
-        $response = wp_remote_get($endpoint . '?' . http_build_query($query_params), array(
-            'headers' => array(
-                'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
-            ),
-        ));
-
-        if (is_wp_error($response)) {
-            echo '<p>Error: ' . $response->get_error_message() . '</p>';
-        } else {
-            $products = json_decode(wp_remote_retrieve_body($response), true);
-            $total_pages = wp_remote_retrieve_header($response, 'x-wp-totalpages');
-
-            if (is_array($products)) {
-                echo '<table class="wp-list-table widefat fixed striped" aria-label="Product List">';
-                echo '<thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th></tr></thead>';
-                echo '<tbody>';
-                foreach ($products as $product) {
-                    echo '<tr>';
-                    echo '<td>' . esc_html($product['id']) . '</td>';
-                    echo '<td>' . esc_html($product['name']) . '</td>';
-                    echo '<td>' . esc_html($product['price']) . '</td>';
-                    echo '<td>' . esc_html($product['stock_status']) . '</td>';
-                    echo '</tr>';
-                }
-                echo '</tbody>';
-                echo '</table>';
-
-                if ($enable_pagination && $total_pages > 1) {
-                    echo '<div class="pagination" style="text-align: center; margin-top: 20px;">';
-                    if ($page > 1) {
-                        echo '<a href="#" data-page="' . ($page - 1) . '" class="prev" style="margin-right: 10px;">&laquo; Previous</a>';
-                    }
-                    for ($i = 1; $i <= $total_pages; $i++) {
-                        $active_class = $i === $page ? 'style="font-weight: bold;"' : '';
-                        echo '<a href="#" data-page="' . $i . '" ' . $active_class . ' style="margin: 0 5px;">' . $i . '</a>';
-                    }
-                    if ($page < $total_pages) {
-                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next" style="margin-left: 10px;">Next &raquo;</a>';
-                    }
-                    echo '</div>';
-                }
+            if (is_wp_error($response)) {
+                echo '<p>Error: ' . $response->get_error_message() . '</p>';
             } else {
-                echo '<p>No products found.</p>';
+                $products = json_decode(wp_remote_retrieve_body($response), true);
+                $total_pages = wp_remote_retrieve_header($response, 'x-wp-totalpages');
+
+                if (is_array($products)) {
+                    echo '<table class="wp-list-table widefat fixed striped">';
+                    echo '<thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th></tr></thead>';
+                    echo '<tbody>';
+                    foreach ($products as $product) {
+                        echo '<tr>';
+                        echo '<td>' . esc_html($product['id']) . '</td>';
+                        echo '<td>' . esc_html($product['name']) . '</td>';
+                        echo '<td>' . esc_html($product['price']) . '</td>';
+                        echo '<td>' . esc_html($product['stock_status']) . '</td>';
+                        echo '</tr>';
+                    }
+                    echo '</tbody>';
+                    echo '</table>';
+
+                    if ($enable_pagination && $total_pages > 1) {
+                        echo '<div class="pagination">';
+                        if ($page > 1) {
+                            echo '<a href="#" data-page="' . ($page - 1) . '" class="prev">&laquo; Previous</a>';
+                        }
+                        for ($i = 1; $i <= $total_pages; $i++) {
+                            $active = $i === $page ? 'class="active"' : '';
+                            echo '<a href="#" data-page="' . $i . '" ' . $active . '>' . $i . '</a>';
+                        }
+                        if ($page < $total_pages) {
+                            echo '<a href="#" data-page="' . ($page + 1) . '" class="next">Next &raquo;</a>';
+                        }
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<p>No products found.</p>';
+                }
             }
         }
-    }
 
-    wp_die();
+        wp_die();
+    }
+}
+
+// Register menu and AJAX handlers
+add_action('admin_menu', function () {
+    add_menu_page(
+        'Custom Products API Settings',
+        'Products API',
+        'manage_options',
+        'custom-products-api',
+        [Custom_Products_API_Plugin::class, 'render_create_product_page'],
+        'dashicons-admin-generic'
+    );
+
+    add_submenu_page(
+        'custom-products-api',
+        'Create Product',
+        'Create Product',
+        'manage_options',
+        'create-product',
+        [Custom_Products_API_Plugin::class, 'render_create_product_page']
+    );
+
+    add_submenu_page(
+        'custom-products-api',
+        'List Products',
+        'List Products',
+        'manage_options',
+        'list-products',
+        [Custom_Products_API_Plugin::class, 'render_list_products_page']
+    );
 });
+
+// Register AJAX action
+add_action('wp_ajax_fetch_products', [Custom_Products_API_Plugin::class, 'fetch_products']);
