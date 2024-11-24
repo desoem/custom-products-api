@@ -1,35 +1,43 @@
 <?php
 class Custom_Products_API_Settings {
     public static function render_page() {
-        if ( isset( $_POST['submit'] ) && check_admin_referer( 'save_settings', 'custom_products_api_nonce' ) ) {
-            $settings = array(
-                'api_endpoint'  => esc_url_raw( $_POST['api_endpoint'] ),
-                'consumer_key'  => sanitize_text_field( $_POST['consumer_key'] ),
-                'consumer_secret' => sanitize_text_field( $_POST['consumer_secret'] )
-            );
-            update_option( 'custom_products_api_settings', $settings );
-            echo '<div class="notice notice-success is-dismissible"><p>Settings saved successfully.</p></div>';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('custom_products_api_settings')) {
+            update_option('custom_products_api_settings', [
+                'api_endpoint' => sanitize_text_field($_POST['api_endpoint']),
+                'consumer_key' => sanitize_text_field($_POST['consumer_key']),
+                'consumer_secret' => sanitize_text_field($_POST['consumer_secret']),
+                'enable_pagination' => isset($_POST['enable_pagination']) ? 1 : 0,
+            ]);
+            echo '<div class="updated"><p>Settings saved.</p></div>';
         }
 
-        $options = get_option( 'custom_products_api_settings', array() );
-
-        echo '<div class="wrap">';
-        echo '<h1>Configuration</h1>';
-        echo '<form method="post" class="custom-products-api-config-form">';
-        wp_nonce_field( 'save_settings', 'custom_products_api_nonce' );
-
-        echo '<fieldset>';
-        echo '<legend>API Settings</legend>';
-        echo '<p><label for="api_endpoint">API Endpoint URL:</label><br>';
-        echo '<input type="text" id="api_endpoint" name="api_endpoint" value="' . esc_attr( $options['api_endpoint'] ?? '' ) . '" class="regular-text"></p>';
-        echo '<p><label for="consumer_key">Consumer Key:</label><br>';
-        echo '<input type="text" id="consumer_key" name="consumer_key" value="' . esc_attr( $options['consumer_key'] ?? '' ) . '" class="regular-text"></p>';
-        echo '<p><label for="consumer_secret">Consumer Secret:</label><br>';
-        echo '<input type="text" id="consumer_secret" name="consumer_secret" value="' . esc_attr( $options['consumer_secret'] ?? '' ) . '" class="regular-text"></p>';
-        echo '</fieldset>';
-
-        echo '<p><input type="submit" name="submit" class="button-primary" value="Save Settings"></p>';
-        echo '</form>';
-        echo '</div>';
+        $options = get_option('custom_products_api_settings', []);
+        ?>
+        <div class="wrap">
+            <h1>Configuration</h1>
+            <form method="post">
+                <?php wp_nonce_field('custom_products_api_settings'); ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="api_endpoint">API Endpoint URL</label></th>
+                        <td><input name="api_endpoint" id="api_endpoint" type="text" class="regular-text" value="<?php echo esc_attr($options['api_endpoint'] ?? ''); ?>" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="consumer_key">Consumer Key</label></th>
+                        <td><input name="consumer_key" id="consumer_key" type="text" class="regular-text" value="<?php echo esc_attr($options['consumer_key'] ?? ''); ?>" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="consumer_secret">Consumer Secret</label></th>
+                        <td><input name="consumer_secret" id="consumer_secret" type="text" class="regular-text" value="<?php echo esc_attr($options['consumer_secret'] ?? ''); ?>" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="enable_pagination">Enable Pagination</label></th>
+                        <td><input name="enable_pagination" id="enable_pagination" type="checkbox" value="1" <?php checked($options['enable_pagination'] ?? 0, 1); ?>></td>
+                    </tr>
+                </table>
+                <p class="submit"><button type="submit" class="button-primary">Save Changes</button></p>
+            </form>
+        </div>
+        <?php
     }
 }
