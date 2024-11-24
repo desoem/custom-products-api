@@ -33,7 +33,7 @@ git clone https://github.com/desoem/custom-products-api.git
       <li>Navigate to <code>Custom Products API > Configuration</code> in the WordPress admin menu.</li>
       <li>Enter the following:
         <ul>
-          <li><strong>API Endpoint URL:</strong> <code>https://stagingdeveloper.site/wp-json/wc/v3</code></li>
+          <li><strong>API Endpoint URL:</strong> <code>https://stagingdeveloper.site/wp-json/wc/v3/product</code></li>
           <li><strong>Consumer Key:</strong> Your WooCommerce API consumer key.</li>
           <li><strong>Consumer Secret:</strong> Your WooCommerce API consumer secret.</li>
         </ul>
