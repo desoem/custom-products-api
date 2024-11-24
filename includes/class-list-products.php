@@ -56,7 +56,7 @@ add_action('wp_ajax_fetch_products', function () {
 
     $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
     $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-    $per_page = 5; // Products per page
+    $per_page = 10; // Products per page
     $offset = ($page - 1) * $per_page;
 
     if ($endpoint && $consumer_key && $consumer_secret) {
