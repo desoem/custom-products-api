@@ -14,13 +14,14 @@ class Custom_Products_API_Create_Product {
                 'stock_quantity' => intval( $_POST['stock_quantity'] )
             );
 
-            $response = wp_remote_post( "$endpoint/products", array(
-                'headers' => array(
-                    'Authorization' => 'Basic ' . base64_encode( "$consumer_key:$consumer_secret" ),
-                    'Content-Type' => 'application/json'
-                ),
-                'body' => json_encode( $data )
-            ));
+            $response = wp_remote_post($endpoint, array(
+    'headers' => array(
+        'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
+        'Content-Type' => 'application/json',
+    ),
+    'body' => wp_json_encode($data),
+));
+
 
             if ( is_wp_error( $response ) ) {
                 echo '<div class="notice notice-error is-dismissible"><p>Error: ' . $response->get_error_message() . '</p></div>';
