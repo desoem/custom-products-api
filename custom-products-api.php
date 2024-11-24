@@ -6,67 +6,37 @@
  * Author: Ridwan Sumantri
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+// Exit if accessed directly.
+if (!defined('ABSPATH')) {
+    exit;
 }
 
-// Define constants
-define( 'CUSTOM_PRODUCTS_API_DIR', plugin_dir_path( __FILE__ ) );
-define( 'CUSTOM_PRODUCTS_API_URL', plugin_dir_url( __FILE__ ) );
+// Include required files.
+require_once plugin_dir_path(__FILE__) . 'includes/class-settings.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-list-products.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-create-product.php';
 
-// Include required files
-require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-settings.php';
-require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-list-products.php';
-require_once CUSTOM_PRODUCTS_API_DIR . 'includes/class-create-product.php';
-
+// Register hooks and actions.
 class Custom_Products_API {
-    public function __construct() {
-        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+    public static function init() {
+        add_action('admin_menu', [self::class, 'add_admin_menu']);
+        add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
     }
 
-    public function add_admin_menu() {
-        add_menu_page(
-            'Custom Products API',
-            'Custom Products API',
-            'manage_options',
-            'custom-products-api',
-            array( 'Custom_Products_API_List_Products', 'render_page' ),
-            'dashicons-products'
-        );
-
-        add_submenu_page(
-            'custom-products-api',
-            'List Products',
-            'List Products',
-            'manage_options',
-            'custom-products-api',
-            array( 'Custom_Products_API_List_Products', 'render_page' )
-        );
-
-        add_submenu_page(
-            'custom-products-api',
-            'Create Product',
-            'Create Product',
-            'manage_options',
-            'custom-products-api-create',
-            array( 'Custom_Products_API_Create_Product', 'render_page' )
-        );
-
-        add_submenu_page(
-            'custom-products-api',
-            'Configuration',
-            'Configuration',
-            'manage_options',
-            'custom-products-api-config',
-            array( 'Custom_Products_API_Settings', 'render_page' )
-        );
+    public static function add_admin_menu() {
+        add_menu_page('Custom Products API', 'Custom Products API', 'manage_options', 'custom-products-api', [Custom_Products_API_List_Products::class, 'render_page']);
+        add_submenu_page('custom-products-api', 'List Products', 'List Products', 'manage_options', 'custom-products-api', [Custom_Products_API_List_Products::class, 'render_page']);
+        add_submenu_page('custom-products-api', 'Create Product', 'Create Product', 'manage_options', 'custom-products-api-create', [Custom_Products_API_Create_Product::class, 'render_page']);
+        add_submenu_page('custom-products-api', 'Configuration', 'Configuration', 'manage_options', 'custom-products-api-settings', [Custom_Products_API_Settings::class, 'render_page']);
     }
 
-    public function enqueue_assets() {
-        wp_enqueue_style( 'custom-products-api-styles', CUSTOM_PRODUCTS_API_URL . 'assets/styles.css' );
-        wp_enqueue_script( 'custom-products-api-scripts', CUSTOM_PRODUCTS_API_URL . 'assets/scripts.js', array( 'jquery' ), null, true );
+    public static function enqueue_assets($hook) {
+        if (strpos($hook, 'custom-products-api') !== false) {
+            wp_enqueue_script('custom-products-api-script', plugin_dir_url(__FILE__) . 'assets/script.js', ['jquery'], '1.0.0', true);
+            wp_enqueue_style('custom-products-api-style', plugin_dir_url(__FILE__) . 'assets/style.css', [], '1.0.0');
+        }
     }
 }
 
-new Custom_Products_API();
+// Initialize the plugin.
+Custom_Products_API::init();
