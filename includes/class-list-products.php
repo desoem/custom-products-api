@@ -107,7 +107,7 @@ add_action('wp_ajax_fetch_products', function () {
                         echo '<a href="#" data-page="' . $i . '" ' . $active_class . '>' . $i . '&nbsp;&nbsp;</a>';
                     }
                     if ($page < $total_pages) {
-                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next">&nbsp;&nbsp;Next &nbsp;&raquo;</a>';
+                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next">&nbsp;&nbsp;Next &raquo;</a>';
                     }
                     echo '</div>';
                 }
