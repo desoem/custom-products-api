@@ -100,14 +100,14 @@ add_action('wp_ajax_fetch_products', function () {
                 if ($enable_pagination && $total_pages > 1) {
                     echo '<div class="pagination">';
                     if ($page > 1) {
-                        echo '<a href="#" data-page="' . ($page - 1) . '" class="prev">&laquo; Previous &nbsp;</a>';
+                        echo '<a href="#" data-page="' . ($page - 1) . '" class="prev" style="margin-right: 10px;">&laquo; Previous</a>';
                     }
                     for ($i = 1; $i <= $total_pages; $i++) {
-                        $active_class = $i === $page ? 'class="active"' : '';
-                        echo '<a href="#" data-page="' . $i . '" ' . $active_class . '>' . $i . '&nbsp;</a>';
+                        $active_class = $i === $page ? 'style="font-weight: bold;"' : '';
+                        echo '<a href="#" data-page="' . $i . '" ' . $active_class . ' style="margin: 0 5px;">' . $i . '</a>';
                     }
                     if ($page < $total_pages) {
-                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next">&nbsp;Next &raquo; &nbsp;</a>';
+                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next" style="margin-left: 10px;">Next &raquo;</a>';
                     }
                     echo '</div>';
                 }
