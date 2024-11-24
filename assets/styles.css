@@ -55,3 +55,106 @@
 .custom-create-product-form .button-primary:hover {
     background: #005a8d;
 }
+#product-search {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+table#product-list-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+}
+
+table#product-list-table th, table#product-list-table td {
+    text-align: left;
+    padding: 10px;
+}
+
+table#product-list-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+table#product-list-table tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+table#product-list-table tr:nth-child(even) {
+    background-color: #fff;
+}
+
+table#product-list-table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 5px;
+    background: #0073aa;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 3px;
+}
+
+.pagination a.active {
+    background: #005177;
+}
+
+.pagination a:hover {
+    background: #005177;
+}
+
+.pagination a.prev,
+.pagination a.next {
+    font-weight: bold;
+}
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center; /* Center the pagination */
+    align-items: center;
+    gap: 10px; /* Add space between the buttons */
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 16px; /* Adjust padding for better appearance */
+    margin: 0 5px; /* Add spacing between elements */
+    background: #0073aa; /* Default background color */
+    color: #ffffff; /* Text color */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px; /* Rounded corners for buttons */
+    font-size: 14px; /* Adjust font size */
+    transition: background-color 0.3s ease;
+}
+
+.pagination a.active {
+    background: #005177; /* Highlight active page */
+    font-weight: bold;
+    cursor: default; /* No pointer cursor for the active page */
+}
+
+.pagination a:hover {
+    background: #005177; /* Change background on hover */
+}
+
+.pagination a.prev,
+.pagination a.next {
+    font-weight: bold; /* Bold styling for "Previous" and "Next" buttons */
+}
+
+.pagination a[aria-label] {
+    padding: 8px 12px;
+}
