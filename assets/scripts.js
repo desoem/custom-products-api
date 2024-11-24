@@ -1,3 +1,4 @@
+
 function fetchProducts(page = 1, search = '') {
     jQuery.ajax({
         url: ajaxurl,
