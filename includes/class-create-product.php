@@ -1,46 +1,45 @@
 <?php
-class Custom_Products_API_Create_Product {
-    public static function render_page() {
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer( 'create_product', 'create_product_nonce' ) ) {
-            $options = get_option( 'custom_products_api_settings', array() );
+class Custom_Products_API_Plugin {
+    public static function render_create_product_page() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_admin_referer('create_product', 'create_product_nonce')) {
+            $options = get_option('custom_products_api_settings', array());
             $endpoint = $options['api_endpoint'] ?? '';
             $consumer_key = $options['consumer_key'] ?? '';
             $consumer_secret = $options['consumer_secret'] ?? '';
 
             $data = array(
-                'name' => sanitize_text_field( $_POST['name'] ),
-                'description' => sanitize_textarea_field( $_POST['description'] ),
-                'regular_price' => sanitize_text_field( $_POST['price'] ),
-                'stock_quantity' => intval( $_POST['stock_quantity'] )
+                'name' => sanitize_text_field($_POST['name']),
+                'description' => sanitize_textarea_field($_POST['description']),
+                'regular_price' => sanitize_text_field($_POST['price']),
+                'stock_quantity' => intval($_POST['stock_quantity'])
             );
 
-            $response = wp_remote_post( "$endpoint/products", array(
+            $response = wp_remote_post("$endpoint/products", array(
                 'headers' => array(
-                    'Authorization' => 'Basic ' . base64_encode( "$consumer_key:$consumer_secret" ),
+                    'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
                     'Content-Type' => 'application/json'
                 ),
-                'body' => json_encode( $data )
+                'body' => json_encode($data)
             ));
 
-            if ( is_wp_error( $response ) ) {
+            if (is_wp_error($response)) {
                 echo '<div class="notice notice-error is-dismissible"><p>Error: ' . $response->get_error_message() . '</p></div>';
             } else {
-                $status_code = wp_remote_retrieve_response_code( $response );
-                if ( $status_code == 201 ) {
+                $status_code = wp_remote_retrieve_response_code($response);
+                if ($status_code == 201) {
                     echo '<div class="notice notice-success is-dismissible"><p>Product created successfully.</p></div>';
                 } else {
-                    $response_body = wp_remote_retrieve_body( $response );
+                    $response_body = wp_remote_retrieve_body($response);
                     echo '<div class="notice notice-error is-dismissible"><p>Failed to create product. Response Code: ' . $status_code . '</p>';
-                    echo '<p>' . esc_html( $response_body ) . '</p></div>';
+                    echo '<p>' . esc_html($response_body) . '</p></div>';
                 }
             }
         }
 
-        // Start rendering the form
         echo '<div class="wrap">';
         echo '<h1>Create Product</h1>';
         echo '<form method="post" class="custom-create-product-form">';
-        wp_nonce_field( 'create_product', 'create_product_nonce' );
+        wp_nonce_field('create_product', 'create_product_nonce');
         ?>
         <table class="form-table">
             <tr>
@@ -65,4 +64,126 @@ class Custom_Products_API_Create_Product {
         <?php
         echo '</div>';
     }
+
+    public static function render_list_products_page() {
+        ?>
+        <div class="wrap">
+            <h1>List Products</h1>
+            <input type="text" id="product-search" placeholder="Search products..." />
+            <div id="product-list">
+                <p>Loading products...</p>
+            </div>
+        </div>
+        <script>
+            jQuery(document).ready(function ($) {
+                function fetchProducts(page = 1, search = '') {
+                    $('#product-list').html('<p>Loading products...</p>');
+                    $.ajax({
+                        url: ajaxurl,
+                        method: 'POST',
+                        data: {
+                            action: 'fetch_products',
+                            page: page,
+                            search: search
+                        },
+                        success: function (response) {
+                            $('#product-list').html(response);
+                        },
+                        error: function () {
+                            $('#product-list').html('<p>Error fetching products.</p>');
+                        }
+                    });
+                }
+
+                fetchProducts();
+
+                $(document).on('click', '.pagination a', function (e) {
+                    e.preventDefault();
+                    const page = $(this).data('page');
+                    fetchProducts(page, $('#product-search').val());
+                });
+
+                $('#product-search').on('input', function () {
+                    fetchProducts(1, $(this).val());
+                });
+            });
+        </script>
+        <?php
+    }
 }
+
+add_action('wp_ajax_fetch_products', function () {
+    $options = get_option('custom_products_api_settings', array());
+    $endpoint = $options['api_endpoint'] ?? '';
+    $consumer_key = $options['consumer_key'] ?? '';
+    $consumer_secret = $options['consumer_secret'] ?? '';
+    $enable_pagination = $options['enable_pagination'] ?? false;
+
+    $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $per_page = 10;
+    $offset = ($page - 1) * $per_page;
+
+    if ($endpoint && $consumer_key && $consumer_secret) {
+        if (substr($endpoint, -9) !== '/products') {
+            $endpoint = rtrim($endpoint, '/') . '/products';
+        }
+
+        $query_params = [
+            'page' => $page,
+            'per_page' => $per_page,
+        ];
+
+        if (!empty($search)) {
+            $query_params['search'] = $search;
+        }
+
+        $response = wp_remote_get($endpoint . '?' . http_build_query($query_params), array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . base64_encode("$consumer_key:$consumer_secret"),
+            ),
+        ));
+
+        if (is_wp_error($response)) {
+            echo '<p>Error: ' . $response->get_error_message() . '</p>';
+        } else {
+            $products = json_decode(wp_remote_retrieve_body($response), true);
+            $total_pages = wp_remote_retrieve_header($response, 'x-wp-totalpages');
+
+            if (is_array($products)) {
+                echo '<table class="wp-list-table widefat fixed striped" aria-label="Product List">';
+                echo '<thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Stock</th></tr></thead>';
+                echo '<tbody>';
+                foreach ($products as $product) {
+                    echo '<tr>';
+                    echo '<td>' . esc_html($product['id']) . '</td>';
+                    echo '<td>' . esc_html($product['name']) . '</td>';
+                    echo '<td>' . esc_html($product['price']) . '</td>';
+                    echo '<td>' . esc_html($product['stock_status']) . '</td>';
+                    echo '</tr>';
+                }
+                echo '</tbody>';
+                echo '</table>';
+
+                if ($enable_pagination && $total_pages > 1) {
+                    echo '<div class="pagination" style="text-align: center; margin-top: 20px;">';
+                    if ($page > 1) {
+                        echo '<a href="#" data-page="' . ($page - 1) . '" class="prev" style="margin-right: 10px;">&laquo; Previous</a>';
+                    }
+                    for ($i = 1; $i <= $total_pages; $i++) {
+                        $active_class = $i === $page ? 'style="font-weight: bold;"' : '';
+                        echo '<a href="#" data-page="' . $i . '" ' . $active_class . ' style="margin: 0 5px;">' . $i . '</a>';
+                    }
+                    if ($page < $total_pages) {
+                        echo '<a href="#" data-page="' . ($page + 1) . '" class="next" style="margin-left: 10px;">Next &raquo;</a>';
+                    }
+                    echo '</div>';
+                }
+            } else {
+                echo '<p>No products found.</p>';
+            }
+        }
+    }
+
+    wp_die();
+});
